@@ -2,6 +2,14 @@ require_relative '../board'
 
 describe Board do
   let(:board) { Board.new }
+  let(:ships) { 
+    carrier = Ship.new("carrier", [0,0], "horizontal")
+    battleship = Ship.new("battleship", [1,1], "horizontal")
+    cruiser = Ship.new("cruiser", [6,2], "horizontal")
+    destroyer = Ship.new("destroyer", [7, 4], "horizontal")
+    submarine = Ship.new("submarine", [9,9], "horizontal") 
+    [carrier, battleship, cruiser, destroyer, submarine] }
+
   it 'generates a 10 by 10 array' do
     expect(board.board.size).to eq 10
   end
@@ -15,6 +23,7 @@ describe Board do
   end
 
   it 'starts with 5 live ships' do
+    ships.each { |ship| board.insert_ship(ship) }
     expect(board.live_ships).to eq 5
   end
 

@@ -34,13 +34,14 @@ class Board
           @board[ship.location[0]+time][ship.location[1]] = "O"
         end
       end
+      true
     else
-      puts "You are overlapping with another ship. Please choose another coordinate"
+      false
     end
   end
 
   def live_ships
-    count = 5
+    count = @ships.size
     @ships.each { |ship| if ship.dead? then count -= 1 end }
     count
   end
@@ -72,8 +73,9 @@ class Board
 
   private
   def placeable?(ship)
+    if (0..9).include?(ship.location[0]) || (0..9).include?(ship.location[1]) then return false end
     fields = ship_fields(ship)
-    return false if fields.include?("O")
+    return false if fields.include?("O") || fields.include?(nil)
     true
   end
 
