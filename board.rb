@@ -16,10 +16,13 @@ class Board
       @board[row][column] = "/"
     when "O"
       @board[row][column] = "X"
+      puts "You hit a ship!"
     when "/" || "X"
-      puts "Repeated coordinate"
+      puts "Repeated coordinate. Choose again"
+      return false
     end
     check_if_ship_sank
+    true
   end
 
   def insert_ship(ship)
@@ -46,7 +49,7 @@ class Board
     count
   end
 
-  def print
+  def print(history)
     puts "   A B C D E F G H I J "
     puts "  _____________________"
     counter = 1
@@ -58,9 +61,10 @@ class Board
       end
       line.each do |element|
         print << "|"
-        if element == "-"
-          print << "-"
+        if element == "-" then print << "-"
+        elsif !history then print << element
         else
+          if element == "O" then element = "-" end
           print << element
         end
       end
@@ -71,19 +75,32 @@ class Board
     puts "  ---------------------"
   end
 
+  def random_placement
+    ship_types = ["carrier", "battleship", "cruiser", "destroyer 1", "destroyer 2", "submarine 1", "submarine 2"]
+    ship_types.each do |ship|
+      placeable = false
+      begin
+        location = [rand(9), rand(9)]
+        orientation = rand(1) == 1 ? "horizontal" : "vertical"
+        placeable = insert_ship(Ship.new(ship, location, orientation))
+      end until placeable
+    end
+  end
+
   private
   def placeable?(ship)
-    if (0..9).include?(ship.location[0]) || (0..9).include?(ship.location[1]) then return false end
+    if !(0..9).include?(ship.location[0]) || !(0..9).include?(ship.location[1]) then return false end
     fields = ship_fields(ship)
-    return false if fields.include?("O") || fields.include?(nil)
+    return false if fields == nil || fields.include?("O")
     true
   end
 
   def check_if_ship_sank
+    puts "Dead ships:"
     @ships.each do |ship|
       field = ship_fields(ship)
-      if !field.include?("-")
-        puts "#{ship} has sunk."
+      if !field.include?("O")
+        puts "#{ship.type} has sunk."
         ship.die
       end
     end
@@ -91,9 +108,11 @@ class Board
 
   def ship_fields(ship)
     if ship.orientation == "horizontal"
+      return nil if ship.location[1]+ship.size > 10
       ship_range = (ship.location[1]...ship.location[1]+ship.size)
       @board[ship.location[0]][ship_range]
     elsif ship.orientation == "vertical"
+      return nil if ship.location[0]+ship.size > 10
       ship_range = (ship.location[0]...ship.location[0]+ship.size)
       field = []
       ship_range.each do |time|

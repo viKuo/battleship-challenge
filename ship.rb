@@ -27,9 +27,9 @@ class Ship
       4
     when "cruiser"
       3
-    when "destroyer"
+    when /destroyer \d/
       2
-    when "submarine"
+    when /submarine \d/
       1
     end
   end
